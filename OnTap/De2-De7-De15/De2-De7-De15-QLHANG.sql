@@ -9,8 +9,6 @@ go
 use master
 go
 create database QLHANG
-on primary(name='QLHANG_dat', filename='C:\BAITAPSQL\DE\QLHANG.mdf')
-log on(name='QLHANG_log', filename='C:\BAITAPSQL\DE\QLHANG.ldf')
 go
 
 use QLHANG
@@ -59,7 +57,15 @@ select * from HDBan
 select * from HangBan
 go
 
-/* ============== De 2============ */
+
+
+
+/*                              *
+ *============ DE 2 ============*
+ *                              */
+
+
+
 
 /* Cau 2: view */
 create view TienHang as
@@ -73,6 +79,8 @@ select * from TienHang
 go
 
 /* Cau 3: */
+--Hơi sai đề bài, sửa chút là được!
+--Không biết sửa thế nòa thì kéo xuống Câu 4 đề 7 nhé!
 create proc sp_FindbyDateMonth(@date int, @month int)
 as
 begin
@@ -86,7 +94,7 @@ begin
 		when 7 then N'Thứ Bẩy'
 		when 1 then N'Chủ Nhật'
 		else 'False'
-	end
+	end as NgayThu
 	from HangBan
 	inner join Hang on Hang.MaHang = HangBan.MaHang
 	inner join HDBan on HDBan.MaHD = HangBan.MaHD
@@ -131,7 +139,89 @@ select * from Hang
 select * from HDBan
 select * from HangBan
 go
-/* ============== DE 15 ============== */
+
+
+
+
+
+/*                              *
+ *============ DE 7 ============*
+ *                              */
+
+
+
+
+/* Cau 2: view */
+create view ThongTinHoaDon as
+select HDBan.MaHD, COUNT(*) as N'Số mặt hàng'
+from HangBan inner join HDBan on HDBan.MaHD=HangBan.MaHD
+group by HDBan.MaHD
+having count(*)>1
+go
+
+--test
+select * from ThongTinHoaDon
+go
+
+
+/* Câu 3: function */
+create function tongtienban(@nam int)
+returns money as
+begin
+	declare @tongtien money
+	select @tongtien=SUM(DonGia*SoLuong) from HangBan
+	where MaHD in (select MaHD from HDBan where YEAR(NgayBan)=@nam)
+	return @tongtien
+end
+go
+
+--test
+
+select dbo.tongtienban(2020) as N'Tổng tiền bán năm 2020'
+go
+
+/* Câu 4: store procedure */
+--Câu này gần giống câu 3 Đề 2 nhé
+create proc sp_FindbyMonthYear(@month int, @year int)
+as
+begin
+	(select Hang.MaHang, Hang.TenHang, HDBan.NgayBan, SoLuong, 
+	case DATEPART(dw,HDBan.NgayBan)
+		when 2 then N'Thứ Hai'
+		when 3 then N'Thứ Ba'
+		when 4 then N'Thứ Tư'
+		when 5 then N'Thứ Năm'
+		when 6 then N'Thứ Sáu'
+		when 7 then N'Thứ Bẩy'
+		when 1 then N'Chủ Nhật'
+		else 'False'
+	end as NgayThu
+	from HangBan
+	inner join Hang on Hang.MaHang = HangBan.MaHang
+	inner join HDBan on HDBan.MaHD = HangBan.MaHD
+	where @month = MONTH(HDBan.NgayBan) AND @year = YEAR(HDBan.NgayBan)
+	)
+
+end
+
+go
+
+--test
+exec sp_FindbyMonthYear 5,2020
+go
+
+
+
+
+
+
+/*                              *
+ *============ DE15 ============*
+ *                              */
+
+
+
+
 
 /* Cau 2 */
 create view HoaDonTren1TR as
