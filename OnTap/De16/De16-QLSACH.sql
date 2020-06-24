@@ -9,8 +9,6 @@ go
 use master
 go
 create database QLSACH
-on primary(name='QLSACH_dat', filename='C:\BAITAPSQL\DE\QLSACH.mdf')
-log on(name='QLSACH_log', filename='C:\BAITAPSQL\DE\QLSACH.ldf')
 go
 
 use QLSACH
